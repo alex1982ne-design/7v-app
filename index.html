@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>7В Навигатор</title>
+<link rel="manifest" href="manifest.json">
 <style>
   :root {
     --bg: #0f172a;
@@ -627,6 +628,7 @@ function sendNotification(title, body) {
   }
 }
 
+let toastTimer = null;
 function testPush() {
   sendNotification("🔔 08:41 • Следующий урок: Алгебра", "Начало в 08:50 (Мартьянова Н. А.). Улыбнись соседу по парте 😎");
 }
@@ -635,12 +637,14 @@ function showToast(msg) {
   const t = document.getElementById("toast");
   t.innerText = msg;
   t.style.display = "block";
-  setTimeout(function() { t.style.display = "none"; }, 4000);
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.style.display = "none"; }, 4000);
 }
 
 function switchTab(tab, btn) {
   const screens = document.querySelectorAll(".screen");
   for (let i = 0; i < screens.length; i++) {
+    screens[i].classList.remove("update", ...); // standard cleanup
     screens[i].classList.remove("active");
   }
   document.getElementById("screen-" + tab).classList.add("active");
