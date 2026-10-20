@@ -1,0 +1,13 @@
+{
+  "background_color": "#14009a",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "naviDay",
+  "orientation": "portrait",
+  "scope": "//7v-app/",
+  "short_name": "7 V",
+  "start_url": "/7v-app/",
+  "theme_color": "#71047b",
+  "description": "для учеников",
+  "lang": "ru"
+}
