@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>7В Навигатор</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-border: #334155;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.25);
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --purple: #a855f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--text); padding-bottom: 85px; -webkit-tap-highlight-color: transparent; }
+  
+  header {
+    background: rgba(30, 41, 59, 0.9);
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 50;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .app-title { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: var(--purple); color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 99px; font-weight: 700; }
+  .xp-bar-wrap { background: #090d16; height: 10px; border-radius: 99px; overflow: hidden; position: relative; }
+  .xp-bar-fill { background: linear-gradient(90deg, var(--accent), var(--purple)); height: 100%; width: 0%; transition: width 0.35s ease; }
+  .xp-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .card-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; color: var(--accent); }
+
+  .radar-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .radar-status { font-size: 18px; font-weight: 800; margin: 6px 0; color: #fff; }
+  .radar-sub { font-size: 13px; color: var(--muted); }
+
+  .cheer-box {
+    background: rgba(168, 85, 247, 0.12);
+    border: 1px dashed var(--purple);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .cheer-text { font-size: 14px; font-weight: 600; color: #e9d5ff; }
+
+  .task-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer; border-radius: 10px; transition: background 0.2s;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-item:active { background: rgba(255,255,255,0.04); }
+  .task-left { display: flex; align-items: center; gap: 12px; }
+  .checkbox {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--muted);
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .task-item.done .checkbox { background: var(--success); border-color: var(--success); color: #000; font-weight: 900; }
+  .task-item.done .task-name { text-decoration: line-through; color: var(--muted); }
+  .task-xp { font-size: 11px; color: var(--accent); font-weight: 700; background: rgba(56, 189, 248, 0.12); padding: 3px 7px; border-radius: 6px; }
+
+  .btn {
+    background: var(--accent); color: #0f172a; border: none; padding: 10px 14px;
+    border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--card-border); }
+  .btn-purple { background: var(--purple); color: #fff; }
+  .btn-full { width: 100%; padding: 12px; font-size: 14px; margin-top: 8px; }
+
+  .day-tabs { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .day-tab {
+    flex: 1; text-align: center; padding: 9px 0; background: var(--card);
+    border: 1px solid var(--card-border); border-radius: 10px; font-weight: 700;
+    font-size: 13px; color: var(--muted); cursor: pointer; min-width: 48px;
+  }
+  .day-tab.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+  .lesson-row {
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+  }
+  .lesson-row:last-child { border-bottom: none; }
+  .lesson-num {
+    background: rgba(255,255,255,0.07); color: var(--accent); font-weight: 800;
+    width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+  }
+  .lesson-info { flex: 1; }
+  .lesson-name { font-size: 14px; font-weight: 700; }
+  .lesson-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .canteen-banner {
+    background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning);
+    color: #fde68a; border-radius: 10px; padding: 8px 12px; margin: 8px 0;
+    font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+  }
+
+  .timer-display { font-size: 40px; font-weight: 900; text-align: center; margin: 14px 0; font-variant-numeric: tabular-nums; color: var(--accent); }
+
+  input, select {
+    width: 100%; background: #090d16; border: 1px solid var(--card-border);
+    color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 14px; margin-bottom: 8px;
+  }
+
+  nav {
+    position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px); border-top: 1px solid var(--card-border);
+    display: flex; justify-content: space-around; padding: 8px 4px 12px; z-index: 50;
+  }
+  .nav-btn {
+    background: none; border: none; color: var(--muted); font-size: 11px; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex: 1;
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-icon { font-size: 20px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    background: #1e293b; border: 2px solid var(--accent); color: #fff;
+    padding: 12px 16px; border-radius: 12px; z-index: 999; font-size: 13px;
+    font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; width: 92%; max-width: 420px;
+  }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<header>
+  <div class="top-row">
+    <div class="app-title">⚡ 7В Навигатор</div>
+    <div class="badge" id="streakBadge">🔥 Стрик: 1 дн. | Ур. 1</div>
+  </div>
+  <div class="xp-bar-wrap">
+    <div class="xp-bar-fill" id="xpFill"></div>
+  </div>
+  <div class="xp-meta">
+    <span id="xpText">Опыт дня: 0%</span>
+    <span id="clockText">00:00</span>
+  </div>
+</header>
+
+<div class="container">
+  <div id="screen-today" class="screen active">
+    <div class="card radar-card">
+      <div class="card-title">
+        <span>📡 Радар расписания (7В)</span>
+        <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="requestNotifPermission()">🔔 Вкл. пуши</button>
+      </div>
+      <div class="radar-status" id="radarMain">Загрузка...</div>
+      <div class="radar-sub" id="radarSub">Проверяем расписание звонков...</div>
+    </div>
+
+    <div class="cheer-box">
+      <div class="cheer-text" id="cheerText">🌟 Ты клёвый! Сегодня всё получится!</div>
+      <button class="btn btn-purple" style="padding:6px 10px; font-size:12px;" onclick="nextCheer()">Ещё</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>✅ Чек-лист дня</span>
+        <span style="font-size:12px; color:var(--muted)" id="tasksCount">0/8</span>
+      </div>
+      <div id="checklistContainer"></div>
+      <button class="btn btn-full" onclick="shareProgress()">📤 Поделиться прогрессом (в чат / родителям)</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎒 Вечерний сбор в школу (после 19:00)</div>
+      <div id="eveningPackList" style="font-size:13px; color:var(--muted); line-height:1.5;"></div>
+    </div>
+  </div>
+
+  <div id="screen-schedule" class="screen">
+    <div class="day-tabs" id="dayTabs"></div>
+    <div class="card">
+      <div class="card-title">
+        <span id="schedDayTitle">Уроки</span>
+        <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="toggleEditSchedule()">✏️ Ред.</button>
+      </div>
+      <div id="lessonsList"></div>
+      <div id="editHint" style="display:none; margin-top:10px;">
+        <button class="btn btn-outline btn-full" onclick="resetScheduleToDefault()">🔄 Сбросить к базовому расписанию 7В</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏅 Мои кружки и секции в этот день</div>
+      <div id="extrasList" style="margin-bottom:10px;"></div>
+      <input type="text" id="extraName" placeholder="Например: Тренировка / Английский">
+      <div style="display:flex; gap:8px;">
+        <input type="time" id="extraTime" value="16:00">
+        <button class="btn" style="flex-shrink:0; margin-bottom:8px;" onclick="addExtra()">+ Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-timers" class="screen">
+    <div class="card">
+      <div class="card-title">⏱️ Таймер привычек (Зубы / Зарядка)</div>
+      <div class="timer-display" id="timerDisplay">02:00</div>
+      <div style="display:flex; gap:8px; justify-content:center; margin-bottom:10px;">
+        <button class="btn btn-outline" onclick="setTimer(120, '🪥 Чистка зубов')">🪥 Зубы (2 мин)</button>
+        <button class="btn btn-outline" onclick="setTimer(300, '💪 Бодрая зарядка')">💪 Зарядка (5 мин)</button>
+        <button class="btn btn-outline" onclick="setTimer(1500, '📚 Фокус на ДЗ')">📚 Уроки (25 мин)</button>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-full" id="timerStartBtn" onclick="toggleTimer()">▶️ Старт</button>
+        <button class="btn btn-outline btn-full" onclick="resetTimer()">⏹️ Сброс</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⏰ Утренний будильник и напоминания</div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+        Установи время утреннего подъема и вечернего напоминания собрать рюкзак:
+      </p>
+      <label style="font-size:12px; color:var(--muted);">Подъем утром:</label>
+      <input type="time" id="wakeTime" value="07:00" onchange="saveSettings()">
+      <label style="font-size:12px; color:var(--muted);">Вечерний сбор рюкзака:</label>
+      <input type="time" id="packTime" value="20:00" onchange="saveSettings()">
+      <button class="btn btn-purple btn-full" onclick="testPush()">🚀 Проверить пуш-уведомление сейчас</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <button class="nav-btn active" onclick="switchTab('today', this)">
+    <span class="nav-icon">⚡</span><span>Мой день</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('schedule', this)">
+    <span class="nav-icon">📅</span><span>Уроки 7В</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('timers', this)">
+    <span class="nav-icon">⏱️</span><span>Таймеры</span>
+  </button>
+</nav>
+
+<script>
+const BELLS = [
+  { num: 1, start: "08:00", end: "08:40", notifyAt: "07:40" },
+  { num: 2, start: "08:50", end: "09:30", notifyAt: "08:41" },
+  { num: 3, start: "09:40", end: "10:20", notifyAt: "09:31" },
+  { num: 4, start: "10:40", end: "11:20", notifyAt: "10:21" },
+  { num: 5, start: "11:40", end: "12:20", notifyAt: "11:21", canteenBefore: true },
+  { num: 6, start: "12:30", end: "13:10", notifyAt: "12:21" },
+  { num: 7, start: "13:20", end: "14:00", notifyAt: "13:11" },
+  { num: 8, start: "14:10", end: "14:50", notifyAt: "14:01" }
+];
+
+const DEFAULT_SCHEDULE = {
+  1: [
+    { num: 1, name: "Разговоры о важном", teacher: "Щербинин А. С." },
+    { num: 2, name: "Русский язык", teacher: "Ефремова Н. В." },
+    { num: 3, name: "Физика", teacher: "Щербинин А. С." },
+    { num: 4, name: "Английский язык (1 гр / 2 гр)", teacher: "Башинская А. А. / Кретова В. А." },
+    { num: 5, name: "Алгебра", teacher: "Мартьянова Н. А." },
+    { num: 6, name: "Литература", teacher: "Ефремова Н. В." }
+  ],
+  2: [
+    { num: 1, name: "Труд (технология)", teacher: "Мухин М. В. / Матюгина Л. А." },
+    { num: 2, name: "Труд (технология)", teacher: "Мухин М. В. / Матюгина Л. А." },
+    { num: 3, name: "Геометрия", teacher: "Мартьянова Н. А." },
+    { num: 4, name: "Русский язык", teacher: "Ефремова Н. В." },
+    { num: 5, name: "История", teacher: "Маркеева Т. И." },
+    { num: 6, name: "Английский язык (1 гр / 2 гр)", teacher: "Башинская А. А. / Кретова В. А." },
+    { num: 7, name: "Музыка", teacher: "Щербинин А. С." }
+  ],
+  3: [
+    { num: 1, name: "Физическая культура", teacher: "Кудашкин А. С." },
+    { num: 2, name: "Алгебра", teacher: "Мартьянова Н. А." },
+    { num: 3, name: "Изобразительное искусство", teacher: "Федосеева А. А." },
+    { num: 4, name: "Вероятность и статистика", teacher: "Мартьянова Н. А." },
+    { num: 5, name: "География", teacher: "Скачкова Н. П." },
+    { num: 6, name: "Физика", teacher: "Щербинин А. С." },
+    { num: 7, name: "История", teacher: "Маркеева Т. И." }
+  ],
+  4: [
+    { num: 1, name: "Русский язык", teacher: "Ефремова Н. В." },
+    { num: 2, name: "Геометрия", teacher: "Мартьянова Н. А." },
+    { num: 3, name: "Алгебра", teacher: "Мартьянова Н. А." },
+    { num: 4, name: "История", teacher: "Маркеева Т. И." },
+    { num: 5, name: "Биология", teacher: "Макарова П. А." },
+    { num: 6, name: "Английский (1 гр) / Информатика (2 гр)", teacher: "Башинская А. А. / Мамонтов А. А." },
+    { num: 7, name: "Россия — мои горизонты", teacher: "Щербинин А. С." }
+  ],
+  5: [
+    { num: 1, name: "Химия", teacher: "Волкова Н. Е." },
+    { num: 2, name: "Русский язык", teacher: "Ефремова Н. В." },
+    { num: 3, name: "География", teacher: "Скачкова Н. П." },
+    { num: 4, name: "Алгебра", teacher: "Мартьянова Н. А." },
+    { num: 5, name: "Информатика (1 гр) / Английский (2 гр)", teacher: "Мамонтов А. А. / Кретова В. А." },
+    { num: 6, name: "Физическая культура", teacher: "Кудашкин А. С." },
+    { num: 7, name: "Литература", teacher: "Ефремова Н. В." }
+  ],
+  6: []
+};
+
+const CHEERS = [
+  "🔥 Ты клёвый! Сегодня всё обязательно получится!",
+  "😎 Улыбнись соседу по парте — сделай этот день чуточку лучше!",
+  "💪 Даже если тема сложная, ты справишься. Шаг за шагом!",
+  "⚡ Перемена — повод размять плечи и выпить воды!",
+  "🚀 7В — сила! Отличного тебе настроения сегодня!",
+  "🌟 Не бойся ошибаться, бойся не пробовать. Ты молодец!"
+];
+
+const DEFAULT_TASKS = [
+  { id: "wake", name: "🌅 Проснуться вовремя и заправить кровать", xp: 10, done: false },
+  { id: "teeth_m", name: "🪥 Почистить зубы утром (2 мин)", xp: 10, done: false },
+  { id: "gym", name: "💪 Сделать утреннюю зарядку (5 мин)", xp: 15, done: false },
+  { id: "school", name: "🏫 Отработать уроки в школе", xp: 15, done: false },
+  { id: "hw", name: "📚 Сделать домашнее задание", xp: 20, done: false },
+  { id: "parents_check", name: "⭐ Выполнить проверку уроков у родителей", xp: 40, done: false },
+  { id: "pack", name: "🎒 Собрать портфель и одежду на завтра", xp: 15, done: false },
+  { id: "teeth_e", name: "🌙 Почистить зубы перед сном", xp: 15, done: false }
+];
+
+let schedule = JSON.parse(localStorage.getItem("7v_sched")) || DEFAULT_SCHEDULE;
+let extras = JSON.parse(localStorage.getItem("7v_extras")) || {1:[],2:[],3:[],4:[],5:[],6:[]};
+let tasks = JSON.parse(localStorage.getItem("7v_tasks")) || DEFAULT_TASKS;
+let selectedDay = new Date().getDay();
+if (selectedDay === 0) selectedDay = 1;
+let editMode = false;
+let lastNotifiedKey = "";
+
+const todayStr = new Date().toDateString();
+if (localStorage.getItem("7v_last_date") !== todayStr) {
+  tasks = DEFAULT_TASKS.map(function(t) { return Object.assign({}, t, {done: false}); });
+  localStorage.setItem("7v_tasks", JSON.stringify(tasks));
+  localStorage.setItem("7v_last_date", todayStr);
+}
+
+function renderChecklist() {
+  const box = document.getElementById("checklistContainer");
+  box.innerHTML = "";
+  let doneScore = 0;
+  let totalScore = 0;
+  tasks.forEach(function(t, idx) {
+    totalScore += t.xp;
+    if (t.done) doneScore += t.xp;
+    const div = document.createElement("div");
+    div.className = "task-item " + (t.done ? "done" : "");
+    div.onclick = function() {
+      tasks[idx].done = !tasks[idx].done;
+      localStorage.setItem("7v_tasks", JSON.stringify(tasks));
+      renderChecklist();
+    };
+    div.innerHTML = '<div class="task-left"><div class="checkbox">' + (t.done ? "✓" : "") + '</div><div class="task-name">' + t.name + '</div></div><div class="task-xp">+' + t.xp + ' XP</div>';
+    box.appendChild(div);
+  });
+  const pct = Math.round((doneScore / totalScore) * 100);
+  document.getElementById("xpFill").style.width = pct + "%";
+  document.getElementById("xpText").innerText = "Опыт дня: " + pct + "% (" + doneScore + " / " + totalScore + " XP)";
+  const doneCount = tasks.filter(function(t){ return t.done; }).length;
+  document.getElementById("tasksCount").innerText = doneCount + "/" + tasks.length;
+}
+
+function renderDayTabs() {
+  const names = {1:"Пн", 2:"Вт", 3:"Ср", 4:"Чт", 5:"Пт", 6:"Сб"};
+  const wrap = document.getElementById("dayTabs");
+  wrap.innerHTML = "";
+  Object.keys(names).forEach(function(d) {
+    const btn = document.createElement("div");
+    btn.className = "day-tab " + (Number(d) === selectedDay ? "active" : "");
+    btn.innerText = names[d];
+    btn.onclick = function() { selectedDay = Number(d); renderDayTabs(); renderSchedule(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderSchedule() {
+  const fullNames = {1:"Понедельник", 2:"Вторник", 3:"Среда", 4:"Четверг", 5:"Пятница", 6:"Суббота"};
+  document.getElementById("schedDayTitle").innerText = fullNames[selectedDay] + " (7В)";
+  const list = document.getElementById("lessonsList");
+  list.innerHTML = "";
+  const dayLessons = schedule[selectedDay] || [];
+
+  if (dayLessons.length === 0 && !editMode) {
+    list.innerHTML = '<div style="color:var(--muted); font-size:13px;">Уроков по расписанию нет 🎉</div>';
+  }
+
+  dayLessons.forEach(function(les, i) {
+    const bell = BELLS.find(function(b) { return b.num === les.num; }) || {start:"--:--", end:"--:--"};
+    if (les.num === 5) {
+      const cant = document.createElement("div");
+      cant.className = "canteen-banner";
+      cant.innerHTML = "🍽️ 11:20 – 11:40 — Столовая (7В класс)";
+      list.appendChild(cant);
+    }
+    const row = document.createElement("div");
+    row.className = "lesson-row";
+    if (!editMode) {
+      row.innerHTML = '<div class="lesson-num">' + les.num + '</div><div class="lesson-info"><div class="lesson-name">' + les.name + '</div><div class="lesson-meta">🕒 ' + bell.start + '–' + bell.end + ' • 👨‍🏫 ' + (les.teacher || "") + '</div></div>';
+    } else {
+      row.innerHTML = '<div style="width:100%"><div style="font-size:12px; color:var(--accent); margin-bottom:4px;">Урок №' + les.num + ' (' + bell.start + '–' + bell.end + ')</div><input value="' + les.name + '" onchange="updateLesson(' + i + ', \'name\', this.value)" placeholder="Предмет"><input value="' + (les.teacher || '') + '" onchange="updateLesson(' + i + ', \'teacher\', this.value)" placeholder="Учитель / Кабинет"></div>';
+    }
+    list.appendChild(row);
+  });
+
+  document.getElementById("editHint").style.display = editMode ? "block" : "none";
+  renderExtras();
+}
+
+function updateLesson(idx, field, val) {
+  schedule[selectedDay][idx][field] = val;
+  localStorage.setItem("7v_sched", JSON.stringify(schedule));
+}
+
+function toggleEditSchedule() {
+  editMode = !editMode;
+  renderSchedule();
+}
+
+function resetScheduleToDefault() {
+  schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+  localStorage.setItem("7v_sched", JSON.stringify(schedule));
+  editMode = false;
+  renderSchedule();
+  showToast("✅ Базовое расписание 7В восстановлено!");
+}
+
+function renderExtras() {
+  const box = document.getElementById("extrasList");
+  const arr = extras[selectedDay] || [];
+  if (arr.length === 0) {
+    box.innerHTML = '<div style="font-size:12px; color:var(--muted);">Доп. занятий пока не добавлено</div>';
+    return;
+  }
+  box.innerHTML = arr.map(function(ex, i) {
+    return '<div class="lesson-row"><div class="lesson-info"><div class="lesson-name">🏅 ' + ex.name + '</div><div class="lesson-meta">🕒 Начало в ' + ex.time + '</div></div><button class="btn btn-outline" style="padding:4px 8px;" onclick="removeExtra(' + i + ')">✕</button></div>';
+  }).join("");
+}
+
+function addExtra() {
+  const name = document.getElementById("extraName").value.trim();
+  const time = document.getElementById("extraTime").value;
+  if (!name) return;
+  if (!extras[selectedDay]) extras[selectedDay] = [];
+  extras[selectedDay].push({name: name, time: time});
+  localStorage.setItem("7v_extras", JSON.stringify(extras));
+  document.getElementById("extraName").value = "";
+  renderExtras();
+  showToast("🏅 Доп. занятие добавлено!");
+}
+
+function removeExtra(idx) {
+  extras[selectedDay].splice(idx, 1);
+  localStorage.setItem("7v_extras", JSON.stringify(extras));
+  renderExtras();
+}
+
+function renderEveningPack() {
+  let tomorrow = new Date().getDay() + 1;
+  if (tomorrow > 6) tomorrow = 1;
+  const names = {1:"понедельник", 2:"вторник", 3:"среду", 4:"четверг", 5:"пятницу", 6:"субботу"};
+  const list = schedule[tomorrow] || [];
+  const box = document.getElementById("eveningPackList");
+  if (list.length === 0) {
+    box.innerHTML = "На завтра (" + names[tomorrow] + ") уроков нет! Отдыхай 😎";
+  } else {
+    const subj = list.map(function(l) { return l.num + ". " + l.name; }).join("<br>");
+    box.innerHTML = '<strong style="color:#fff;">Уроки на завтра (' + names[tomorrow] + '):</strong><br>' + subj;
+  }
+}
+
+function updateRadarAndNotifications() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  const curTime = hh + ":" + mm;
+  document.getElementById("clockText").innerText = curTime;
+
+  const day = now.getDay();
+  const todayLessons = schedule[day] || [];
+  const mainEl = document.getElementById("radarMain");
+  const subEl = document.getElementById("radarSub");
+
+  if (todayLessons.length === 0) {
+    mainEl.innerText = "Сегодня выходной от уроков 🎉";
+    subEl.innerText = "Не забудь про свои кружки и отдых!";
+    return;
+  }
+
+  BELLS.forEach(function(b) {
+    const les = todayLessons.find(function(l) { return l.num === b.num; });
+    if (les && curTime === b.notifyAt && lastNotifiedKey !== todayStr + "_" + curTime) {
+      lastNotifiedKey = todayStr + "_" + curTime;
+      if (b.num === 1) {
+        sendNotification("🔔 Первый урок в 08:00: " + les.name, "Учитель: " + les.teacher);
+      } else if (b.canteenBefore) {
+        sendNotification("🍽️ Столовая 7В (11:20–11:40)!", "А в 11:40 — 5 урок: " + les.name);
+      } else {
+        sendNotification("🔔 Следующий (" + b.num + "-й) урок в " + b.start + ": " + les.name, "Учитель: " + les.teacher);
+      }
+    }
+  });
+
+  for (let i = 0; i < BELLS.length; i++) {
+    const b = BELLS[i];
+    const les = todayLessons.find(function(l) { return l.num === b.num; });
+    if (!les) continue;
+    if (curTime < b.start) {
+      if (b.canteenBefore && curTime >= "11:20" && curTime < "11:40") {
+        mainEl.innerText = "🍽️ Сейчас СТОЛОВАЯ 7В (до 11:40)";
+        subEl.innerText = "Далее 5-й урок (11:40): " + les.name;
+      } else {
+        mainEl.innerText = "Далее " + b.num + "-й урок (" + b.start + "): " + les.name;
+        subEl.innerText = "Учитель: " + les.teacher;
+      }
+      return;
+    }
+    if (curTime >= b.start && curTime <= b.end) {
+      mainEl.innerText = "🟢 Идёт " + b.num + "-й урок: " + les.name;
+      subEl.innerText = "Звонок на перемену в " + b.end + " • " + les.teacher;
+      return;
+    }
+  }
+  mainEl.innerText = "Уроки на сегодня закончились! 🎉";
+  subEl.innerText = "Самое время пообедать, отдохнуть и сделать ДЗ.";
+}
+
+function nextCheer() {
+  const idx = Math.floor(Math.random() * CHEERS.length);
+  const msg = CHEERS[idx];
+  document.getElementById("cheerText").innerText = msg;
+  showToast(msg);
+}
+
+function shareProgress() {
+  let doneScore = 0;
+  let totalScore = 0;
+  tasks.forEach(function(t) {
+    totalScore += t.xp;
+    if (t.done) doneScore += t.xp;
+  });
+  const pct = Math.round((doneScore / totalScore) * 100);
+  const text = "⚡ Мой статус дня (7В Навигатор):\n🔋 Прогресс XP: " + pct + "% (" + doneScore + "/" + totalScore + " XP)\n🎒 К завтрашнему дню готов!";
+  if (navigator.share) {
+    navigator.share({ title: "Мой прогресс 7В", text: text });
+  } else {
+    navigator.clipboard.writeText(text);
+    showToast("📋 Отчёт скопирован! Вставь его в чат класса или родителям.");
+  }
+}
+
+let timerSec = 120;
+let timerInterval = null;
+function setTimer(sec, label) {
+  resetTimer();
+  timerSec = sec;
+  updateTimerUI();
+  showToast("Выбран режим: " + label);
+}
+function updateTimerUI() {
+  const m = String(Math.floor(timerSec / 60)).padStart(2, "0");
+  const s = String(timerSec % 60).padStart(2, "0");
+  document.getElementById("timerDisplay").innerText = m + ":" + s;
+}
+function toggleTimer() {
+  const btn = document.getElementById("timerStartBtn");
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    btn.innerText = "▶️ Старт";
+  } else {
+    btn.innerText = "⏸️ Пауза";
+    timerInterval = setInterval(function() {
+      if (timerSec > 0) {
+        timerSec--;
+        updateTimerUI();
+      } else {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.innerText = "▶️ Старт";
+        sendNotification("🎉 Таймер завершён!", "Отличная работа! Не забудь отметить галочку в чек-листе.");
+      }
+    }, 1000);
+  }
+}
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  document.getElementById("timerStartBtn").innerText = "▶️ Старт";
+  timerSec = 120;
+  updateTimerUI();
+}
+
+function requestNotifPermission() {
+  if (!("Notification" in window)) {
+    showToast("Встроенные уведомления работают внутри приложения");
+    return;
+  }
+  Notification.requestPermission().then(function(p) {
+    if (p === "granted") showToast("🔔 Пуш-уведомления включены!");
+  });
+}
+
+function sendNotification(title, body) {
+  showToast(title + " — " + body);
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification(title, { body: body });
+  }
+}
+
+function testPush() {
+  sendNotification("🔔 08:41 • Следующий урок: Алгебра", "Начало в 08:50 (Мартьянова Н. А.). Улыбнись соседу по парте 😎");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.display = "block";
+  setTimeout(function() { t.style.display = "none"; }, 4000);
+}
+
+function switchTab(tab, btn) {
+  const screens = document.querySelectorAll(".screen");
+  for (let i = 0; i < screens.length; i++) {
+    screens[i].classList.remove("active");
+  }
+  document.getElementById("screen-" + tab).classList.add("active");
+  
+  const navBtns = document.querySelectorAll(".nav-btn");
+  for (let j = 0; j < navBtns.length; j++) {
+    navBtns[j].classList.remove("active");
+  }
+  btn.classList.add("active");
+}
+
+function saveSettings() {
+  showToast("⏰ Время напоминаний сохранено!");
+}
+
+renderChecklist();
+renderDayTabs();
+renderSchedule();
+renderEveningPack();
+updateRadarAndNotifications();
+setInterval(updateRadarAndNotifications, 10000);
+</script>
+</body>
+</html>
