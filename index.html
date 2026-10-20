@@ -307,7 +307,7 @@ const DEFAULT_SCHEDULE = {
     { num: 4, name: "История", teacher: "Маркеева Т. И." },
     { num: 5, name: "Биология", teacher: "Макарова П. А." },
     { num: 6, name: "Английский (1 гр) / Информатика (2 гр)", teacher: "Башинская А. А. / Мамонтов А. А." },
-    { num: 7, name: "Россия — мои горизонты", teacher: "Щербинин А. С." }
+    { num: 7, name: соз = "Россия — мои горизонты", teacher: "Щербинин А. С." }
   ],
   5: [
     { num: 1, name: "Химия", teacher: "Волкова Н. Е." },
@@ -571,6 +571,8 @@ function shareProgress() {
 
 let timerSec = 120;
 let timerInterval = null;
+let toastTimer = null;
+
 function setTimer(sec, label) {
   resetTimer();
   timerSec = sec;
@@ -628,7 +630,6 @@ function sendNotification(title, body) {
   }
 }
 
-let toastTimer = null;
 function testPush() {
   sendNotification("🔔 08:41 • Следующий урок: Алгебра", "Начало в 08:50 (Мартьянова Н. А.). Улыбнись соседу по парте 😎");
 }
@@ -644,7 +645,6 @@ function showToast(msg) {
 function switchTab(tab, btn) {
   const screens = document.querySelectorAll(".screen");
   for (let i = 0; i < screens.length; i++) {
-    screens[i].classList.remove("update", ...); // standard cleanup
     screens[i].classList.remove("active");
   }
   document.getElementById("screen-" + tab).classList.add("active");
