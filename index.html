@@ -18,13 +18,18 @@
     --warning: #f59e0b;
     --purple: #a855f7;
     --danger: #ef4444;
+    --pink: #ec4899;
+    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   html { background: var(--bg); min-height: 100%; }
   body {
     background: var(--bg) !important;
     color: var(--text);
-    padding-bottom: 85px;
+    padding-bottom: 90px;
     -webkit-tap-highlight-color: transparent;
     min-height: 100vh;
     margin: 0;
@@ -156,14 +161,15 @@
   nav {
     position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.98);
     backdrop-filter: blur(10px); border-top: 1px solid var(--card-border);
-    display: flex; justify-content: space-around; padding: 8px 4px 12px; z-index: 50;
+    display: flex; justify-content: space-around; padding: 6px 4px 10px; z-index: 50;
   }
   .nav-btn {
-    background: none; border: none; color: var(--muted); font-size: 11px; font-weight: 600;
-    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex: 1;
+    background: none; border: none; color: var(--muted); font-size: 10px; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; flex: 1;
+    padding: 4px 2px;
   }
   .nav-btn.active { color: var(--accent); }
-  .nav-icon { font-size: 20px; }
+  .nav-icon { font-size: 18px; }
 
   .screen { display: none; }
   .screen.active { display: block; }
@@ -217,6 +223,132 @@
   .sound-toggle input[type="checkbox"] {
     width: auto;
     margin: 0;
+  }
+
+  /* Стили для вкладки каникул */
+  .vacation-card {
+    border-radius: 20px;
+    padding: 20px 16px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .vacation-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0.15;
+    z-index: 0;
+  }
+  .vacation-card > * { position: relative; z-index: 1; }
+  .vacation-card.summer { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%); border-color: rgba(245, 158, 11, 0.4); }
+  .vacation-card.friday { background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%); border-color: rgba(168, 85, 247, 0.4); }
+  .vacation-card.school { background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%); border-color: rgba(56, 189, 248, 0.4); }
+  .vacation-card.newyear { background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%); border-color: rgba(239, 68, 68, 0.4); }
+
+  .vacation-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vacation-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .vacation-timer {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .vacation-unit {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 8px 4px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .vacation-value {
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .vacation-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .vacation-ms {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .vacation-ms span {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .vacation-emoji {
+    font-size: 20px;
+  }
+
+  .vacation-header {
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 16px;
+  }
+  .vacation-header-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .vacation-header-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .progress-bar-wrap {
+    background: rgba(0,0,0,0.3);
+    height: 6px;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+  .progress-text {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: center;
+  }
+
+  @media (max-width: 380px) {
+    .vacation-value { font-size: 20px; }
+    .vacation-unit { padding: 6px 2px; }
+    .nav-btn { font-size: 9px; }
+    .nav-icon { font-size: 16px; }
   }
 </style>
 </head>
@@ -322,19 +454,149 @@
         <input type="checkbox" id="soundEnabled" checked onchange="saveSoundSetting()">
         <label for="soundEnabled">&#128264; Звук и вибрация включены</label>
       </div>
+      <div class="sound-toggle">
+        <input type="checkbox" id="tickEnabled" onchange="saveSoundSetting()">
+        <label for="tickEnabled">&#128344; Тиканье во время работы</label>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-title">&#9200;&#65039; Напоминания об уроках</div>
+      <div class="card-title">&#9200;&#65039; Утренний будильник и напоминания</div>
       <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
-        App будет напоминать за 7 минут до урока. <br>
-        <strong style="color:var(--warning);">Важно: Держи приложение открытым!</strong>
+        Установи время утреннего подъема и вечернего напоминания собрать рюкзак:
       </p>
-      <div class="sound-toggle">
-        <input type="checkbox" id="notifEnabled" checked onchange="saveSoundSetting()">
-        <label for="notifEnabled">&#128276; Уведомления за 7 минут до урока</label>
-      </div>
+      <label style="font-size:12px; color:var(--muted);">Подъем утром:</label>
+      <input type="time" id="wakeTime" value="07:00" onchange="saveSettings()">
+      <label style="font-size:12px; color:var(--muted);">Вечерний сбор рюкзака:</label>
+      <input type="time" id="packTime" value="20:00" onchange="saveSettings()">
       <button class="btn btn-purple btn-full" onclick="testAlarm()" style="margin-top:12px;">&#128640; Проверить будильник сейчас</button>
+      <div class="sound-toggle" style="margin-top:12px;">
+        <input type="checkbox" id="notifEnabled" checked onchange="saveSoundSetting()">
+        <label for="notifEnabled">&#128276; Уведомления о уроках включены</label>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-vacation" class="screen">
+    <div class="vacation-header">
+      <div class="vacation-header-title">&#127881; Обратный отсчёт</div>
+      <div class="vacation-header-sub">Считаем дни до лучших моментов!</div>
+    </div>
+
+    <div class="vacation-card summer">
+      <div class="vacation-title">
+        <span class="vacation-emoji">&#9728;&#65039;</span>
+        <span>До летних каникул</span>
+      </div>
+      <div class="vacation-subtitle" id="summerDate">1 июня 2026</div>
+      <div class="vacation-timer" id="summerTimer">
+        <div class="vacation-unit">
+          <div class="vacation-value" id="summerDays">0</div>
+          <div class="vacation-label">Дней</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="summerHours">0</div>
+          <div class="vacation-label">Часов</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="summerMinutes">0</div>
+          <div class="vacation-label">Минут</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="summerSeconds">0</div>
+          <div class="vacation-label">Секунд</div>
+        </div>
+      </div>
+      <div class="vacation-ms">Миллисекунды: <span id="summerMs">000</span></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="summerProgress" style="background: linear-gradient(90deg, #f59e0b, #ef4444); width: 0%;"></div>
+      </div>
+      <div class="progress-text" id="summerProgressText">0% учебного года прошло</div>
+    </div>
+
+    <div class="vacation-card friday">
+      <div class="vacation-title">
+        <span class="vacation-emoji">&#127881;</span>
+        <span>До ближайшей пятницы</span>
+      </div>
+      <div class="vacation-subtitle" id="fridayDate">Выходные близко!</div>
+      <div class="vacation-timer" id="fridayTimer">
+        <div class="vacation-unit">
+          <div class="vacation-value" id="fridayDays">0</div>
+          <div class="vacation-label">Дней</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="fridayHours">0</div>
+          <div class="vacation-label">Часов</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="fridayMinutes">0</div>
+          <div class="vacation-label">Минут</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="fridaySeconds">0</div>
+          <div class="vacation-label">Секунд</div>
+        </div>
+      </div>
+      <div class="vacation-ms">Миллисекунды: <span id="fridayMs">000</span></div>
+    </div>
+
+    <div class="vacation-card school">
+      <div class="vacation-title">
+        <span class="vacation-emoji">&#127891;</span>
+        <span>До школьных каникул</span>
+      </div>
+      <div class="vacation-subtitle" id="schoolDate">Следующие каникулы</div>
+      <div class="vacation-timer" id="schoolTimer">
+        <div class="vacation-unit">
+          <div class="vacation-value" id="schoolDays">0</div>
+          <div class="vacation-label">Дней</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="schoolHours">0</div>
+          <div class="vacation-label">Часов</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="schoolMinutes">0</div>
+          <div class="vacation-label">Минут</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="schoolSeconds">0</div>
+          <div class="vacation-label">Секунд</div>
+        </div>
+      </div>
+      <div class="vacation-ms">Миллисекунды: <span id="schoolMs">000</span></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="schoolProgress" style="background: linear-gradient(90deg, #38bdf8, #22c55e); width: 0%;"></div>
+      </div>
+      <div class="progress-text" id="schoolProgressText">До каникул</div>
+    </div>
+
+    <div class="vacation-card newyear">
+      <div class="vacation-title">
+        <span class="vacation-emoji">&#127876;</span>
+        <span>До Нового года</span>
+      </div>
+      <div class="vacation-subtitle" id="newyearDate">1 января 2027</div>
+      <div class="vacation-timer" id="newyearTimer">
+        <div class="vacation-unit">
+          <div class="vacation-value" id="newyearDays">0</div>
+          <div class="vacation-label">Дней</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="newyearHours">0</div>
+          <div class="vacation-label">Часов</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="newyearMinutes">0</div>
+          <div class="vacation-label">Минут</div>
+        </div>
+        <div class="vacation-unit">
+          <div class="vacation-value" id="newyearSeconds">0</div>
+          <div class="vacation-label">Секунд</div>
+        </div>
+      </div>
+      <div class="vacation-ms">Миллисекунды: <span id="newyearMs">000</span></div>
     </div>
   </div>
 </div>
@@ -347,7 +609,10 @@
     <span class="nav-icon">&#128197;</span><span>Уроки 7В</span>
   </button>
   <button class="nav-btn" onclick="switchTab('timers', this)">
-    <span class="nav-icon">&#9201;&#65039;</span><span>Таймеры</span>
+    <span class="nav-icon">&#9201;</span><span>Таймеры</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('vacation', this)">
+    <span class="nav-icon">&#127881;</span><span>Каникулы</span>
   </button>
 </nav>
 
@@ -380,13 +645,16 @@ function playBeep(freq = 800, duration = 0.15, volume = 0.3) {
   osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + duration);
 }
 
+function playTick() { playBeep(1000, 0.05, 0.1); }
+
 function startAlarmSound() {
   initAudio();
   if (!audioCtx || isAlarmPlaying) return;
   isAlarmPlaying = true;
   let beepCount = 0;
+  const maxBeeps = 60;
   function beep() {
-    if (!isAlarmPlaying || beepCount >= 60) { stopAlarmSound(); return; }
+    if (!isAlarmPlaying || beepCount >= maxBeeps) { stopAlarmSound(); return; }
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
@@ -459,17 +727,17 @@ const DEFAULT_SCHEDULE = {
     { num: 1, name: "Разговоры о важном", teacher: "Щербинин А. С." },
     { num: 2, name: "Русский язык", teacher: "Ефремова Н. В." },
     { num: 3, name: "Физика", teacher: "Щербинин А. С." },
-    { num: 4, name: "Английский язык", teacher: "Башинская А. А." },
+    { num: 4, name: "Английский язык (1 гр / 2 гр)", teacher: "Башинская А. А. / Кретова В. А." },
     { num: 5, name: "Алгебра", teacher: "Мартьянова Н. А." },
     { num: 6, name: "Литература", teacher: "Ефремова Н. В." }
   ],
   2: [
-    { num: 1, name: "Труд (технология)", teacher: "Мухин М. В." },
-    { num: 2, name: "Труд (технология)", teacher: "Мухин М. В." },
+    { num: 1, name: "Труд (технология)", teacher: "Мухин М. В. / Матюгина Л. А." },
+    { num: 2, name: "Труд (технология)", teacher: "Мухин М. В. / Матюгина Л. А." },
     { num: 3, name: "Геометрия", teacher: "Мартьянова Н. А." },
     { num: 4, name: "Русский язык", teacher: "Ефремова Н. В." },
     { num: 5, name: "История", teacher: "Маркеева Т. И." },
-    { num: 6, name: "Английский язык", teacher: "Башинская А. А." },
+    { num: 6, name: "Английский язык (1 гр / 2 гр)", teacher: "Башинская А. А. / Кретова В. А." },
     { num: 7, name: "Музыка", teacher: "Щербинин А. С." }
   ],
   3: [
@@ -487,7 +755,7 @@ const DEFAULT_SCHEDULE = {
     { num: 3, name: "Алгебра", teacher: "Мартьянова Н. А." },
     { num: 4, name: "История", teacher: "Маркеева Т. И." },
     { num: 5, name: "Биология", teacher: "Макарова П. А." },
-    { num: 6, name: "Английский / Информатика", teacher: "Башинская / Мамонтов" },
+    { num: 6, name: "Английский (1 гр) / Информатика (2 гр)", teacher: "Башинская А. А. / Мамонтов А. А." },
     { num: 7, name: "Россия — мои горизонты", teacher: "Щербинин А. С." }
   ],
   5: [
@@ -495,7 +763,7 @@ const DEFAULT_SCHEDULE = {
     { num: 2, name: "Русский язык", teacher: "Ефремова Н. В." },
     { num: 3, name: "География", teacher: "Скачкова Н. П." },
     { num: 4, name: "Алгебра", teacher: "Мартьянова Н. А." },
-    { num: 5, name: "Информатика / Английский", teacher: "Мамонтов / Кретова" },
+    { num: 5, name: "Информатика (1 гр) / Английский (2 гр)", teacher: "Мамонтов А. А. / Кретова В. А." },
     { num: 6, name: "Физическая культура", teacher: "Кудашкин А. С." },
     { num: 7, name: "Литература", teacher: "Ефремова Н. В." }
   ],
@@ -529,8 +797,8 @@ let selectedDay = new Date().getDay();
 if (selectedDay === 0) selectedDay = 1;
 let editMode = false;
 let lastNotifiedKey = "";
-const todayStr = new Date().toDateString();
 
+const todayStr = new Date().toDateString();
 if (localStorage.getItem("7v_last_date") !== todayStr) {
   tasks = DEFAULT_TASKS.map(t => ({...t, done: false}));
   localStorage.setItem("7v_tasks", JSON.stringify(tasks));
@@ -557,8 +825,10 @@ function updateTimerUI() {
 }
 function toggleTimer() {
   const btn = document.getElementById("timerStartBtn");
+  const tickEnabled = document.getElementById("tickEnabled").checked;
   if (timerInterval) {
     clearInterval(timerInterval); timerInterval = null;
+    if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
     btn.innerHTML = "&#9658;&#65039; Старт";
     document.getElementById("timerDisplay").classList.remove("alarm");
     playBeep(400, 0.1, 0.2);
@@ -566,19 +836,31 @@ function toggleTimer() {
     btn.innerHTML = "&#9208;&#65039; Пауза";
     document.getElementById("timerDisplay").classList.remove("alarm");
     playBeep(800, 0.15, 0.3);
+    if (tickEnabled) {
+      tickInterval = setInterval(function() {
+        if (timerSec > 0 && timerSec % 60 === 0) playTick();
+      }, 1000);
+    }
     timerInterval = setInterval(function() {
       if (timerSec > 0) { timerSec--; updateTimerUI(); } 
       else {
         clearInterval(timerInterval); timerInterval = null;
+        if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
         btn.innerHTML = "&#9658;&#65039; Старт";
         document.getElementById("timerDisplay").classList.add("alarm");
-        triggerAlarm("&#127881; Таймер завершён!", timerLabel || "Отличная работа!", "&#127881;");
+        const soundEnabled = document.getElementById('soundEnabled').checked;
+        if (soundEnabled) {
+          triggerAlarm("&#127881; Таймер завершён!", timerLabel || "Отличная работа!", "&#127881;");
+        } else {
+          showAlarmModal("&#127881; Таймер завершён!", timerLabel || "Отличная работа!", "&#127881;");
+        }
       }
     }, 1000);
   }
 }
 function resetTimer() {
   clearInterval(timerInterval); timerInterval = null;
+  if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
   stopAlarmSound();
   document.getElementById("timerStartBtn").innerHTML = "&#9658;&#65039; Старт";
   document.getElementById("timerDisplay").classList.remove("alarm");
@@ -586,7 +868,7 @@ function resetTimer() {
 }
 
 // ============================================================
-// УВЕДОМЛЕНИЯ (ДИНАМИЧЕСКИЕ 7 МИНУТ)
+// УВЕДОМЛЕНИЯ О УРОКАХ
 // ============================================================
 function updateRadarAndNotifications() {
   const now = new Date();
@@ -607,14 +889,13 @@ function updateRadarAndNotifications() {
     return;
   }
 
-  // ДИНАМИЧЕСКОЕ УВЕДОМЛЕНИЕ ЗА 7 МИНУТ
   if (notifEnabled) {
-    const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
     BELLS.forEach(function(b) {
       const les = todayLessons.find(l => l.num === b.num);
       if (!les) return;
       const [h, m] = b.start.split(':').map(Number);
       const lessonTotalMinutes = h * 60 + m;
+      const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
       const diff = lessonTotalMinutes - currentTotalMinutes;
 
       if (diff === 7) {
@@ -631,7 +912,6 @@ function updateRadarAndNotifications() {
     });
   }
 
-  // РАДАР
   for (let i = 0; i < BELLS.length; i++) {
     const b = BELLS[i];
     const les = todayLessons.find(l => l.num === b.num);
@@ -654,6 +934,132 @@ function updateRadarAndNotifications() {
   }
   mainEl.innerHTML = "Уроки на сегодня закончились! &#127881;";
   subEl.innerHTML = "Самое время пообедать, отдохнуть и сделать ДЗ.";
+}
+
+function checkWakeAndPackAlarms() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  const curTime = hh + ":" + mm;
+  const wakeTime = document.getElementById("wakeTime").value;
+  const packTime = document.getElementById("packTime").value;
+  const alarmKey = todayStr + "_alarms";
+  const lastAlarms = localStorage.getItem(alarmKey) || "";
+  if (curTime === wakeTime && lastAlarms.indexOf("wake_" + todayStr) === -1) {
+    localStorage.setItem(alarmKey, lastAlarms + "wake_" + todayStr + ",");
+    triggerAlarm("&#127749; Доброе утро!", "Время просыпаться! Не забудь заправить кровать и почистить зубы.", "&#127749;");
+  }
+  if (curTime === packTime && lastAlarms.indexOf("pack_" + todayStr) === -1) {
+    localStorage.setItem(alarmKey, lastAlarms + "pack_" + todayStr + ",");
+    triggerAlarm("&#127898; Собрать рюкзак!", "Время собрать портфель и одежду на завтра.", "&#127898;");
+  }
+}
+
+function testAlarm() {
+  triggerAlarm("&#128276; Тест будильника!", "Если ты слышишь звук и видишь вибрацию — всё работает! &#127881;", "&#128276;");
+}
+
+// ============================================================
+// ТАЙМЕРЫ КАНИКУЛ
+// ============================================================
+function getNextFriday() {
+  const now = new Date();
+  const day = now.getDay();
+  const daysUntilFriday = (5 - day + 7) % 7 || 7;
+  const nextFriday = new Date(now);
+  nextFriday.setDate(now.getDate() + daysUntilFriday);
+  nextFriday.setHours(0, 0, 0, 0);
+  return nextFriday;
+}
+
+function getNextSchoolVacation() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const day = now.getDate();
+  
+  // Примерные даты каникул для 7 класса (можно настроить)
+  const vacations = [
+    { name: "Осенние каникулы", date: new Date(year, 10, 2) }, // 2 ноября
+    { name: "Зимние каникулы", date: new Date(year, 11, 28) }, // 28 декабря
+    { name: "Весенние каникулы", date: new Date(year + 1, 2, 22) }, // 22 марта
+    { name: "Летние каникулы", date: new Date(year + 1, 4, 31) } // 31 мая
+  ];
+  
+  // Если сейчас после 2 ноября, берем следующий год для осенних
+  if (month > 10 || (month === 10 && day >= 2)) {
+    vacations[0].date = new Date(year + 1, 10, 2);
+  }
+  if (month > 11 || (month === 11 && day >= 28)) {
+    vacations[1].date = new Date(year + 1, 11, 28);
+  }
+  if (month > 2 || (month === 2 && day >= 22)) {
+    vacations[2].date = new Date(year + 1, 2, 22);
+  }
+  
+  for (let v of vacations) {
+    if (v.date > now) return v;
+  }
+  return vacations[0];
+}
+
+function updateVacationTimers() {
+  const now = new Date();
+  
+  // Летние каникулы - 1 июня следующего года (если уже прошло)
+  let summerDate = new Date(now.getFullYear(), 5, 1); // 1 июня
+  if (now > summerDate) summerDate = new Date(now.getFullYear() + 1, 5, 1);
+  
+  // Начало учебного года для прогресса - 1 сентября
+  let schoolYearStart = new Date(now.getFullYear(), 8, 1);
+  if (now < schoolYearStart) schoolYearStart = new Date(now.getFullYear() - 1, 8, 1);
+  
+  updateTimer('summer', summerDate, schoolYearStart, summerDate);
+  updateTimer('friday', getNextFriday(), null, null);
+  
+  const nextVac = getNextSchoolVacation();
+  updateTimer('school', nextVac.date, schoolYearStart, nextVac.date);
+  
+  // Новый год
+  let newYearDate = new Date(now.getFullYear() + 1, 0, 1);
+  updateTimer('newyear', newYearDate, null, null);
+}
+
+function updateTimer(id, targetDate, startDate, endDate) {
+  const now = new Date();
+  const diff = targetDate - now;
+  
+  if (diff <= 0) {
+    document.getElementById(id + 'Days').textContent = '0';
+    document.getElementById(id + 'Hours').textContent = '0';
+    document.getElementById(id + 'Minutes').textContent = '0';
+    document.getElementById(id + 'Seconds').textContent = '0';
+    document.getElementById(id + 'Ms').textContent = '000';
+    return;
+  }
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  const ms = Math.floor(diff % 1000);
+  
+  document.getElementById(id + 'Days').textContent = days;
+  document.getElementById(id + 'Hours').textContent = String(hours).padStart(2, '0');
+  document.getElementById(id + 'Minutes').textContent = String(minutes).padStart(2, '0');
+  document.getElementById(id + 'Seconds').textContent = String(seconds).padStart(2, '0');
+  document.getElementById(id + 'Ms').textContent = String(ms).padStart(3, '0');
+  
+  // Прогресс бар для летних каникул и школьных
+  if (startDate && endDate) {
+    const totalDuration = endDate - startDate;
+    const elapsed = now - startDate;
+    const progress = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+    const progressEl = document.getElementById(id + 'Progress');
+    const progressTextEl = document.getElementById(id + 'ProgressText');
+    if (progressEl) progressEl.style.width = progress.toFixed(1) + '%';
+    if (progressTextEl) progressTextEl.textContent = progress.toFixed(1) + '% времени прошло';
+  }
 }
 
 // ============================================================
@@ -812,9 +1218,11 @@ function switchTab(tab, btn) {
   playBeep(500, 0.05, 0.15);
 }
 
+function saveSettings() { showToast("&#9200;&#65039; Время напоминаний сохранено!"); playBeep(660, 0.1, 0.2); }
 function saveSoundSetting() {
   const settings = {
     sound: document.getElementById('soundEnabled').checked,
+    tick: document.getElementById('tickEnabled').checked,
     notif: document.getElementById('notifEnabled').checked
   };
   localStorage.setItem("7v_sound_settings", JSON.stringify(settings));
@@ -824,24 +1232,26 @@ function loadSoundSettings() {
     const settings = JSON.parse(localStorage.getItem("7v_sound_settings"));
     if (settings) {
       document.getElementById('soundEnabled').checked = settings.sound !== false;
+      document.getElementById('tickEnabled').checked = settings.tick || false;
       document.getElementById('notifEnabled').checked = settings.notif !== false;
     }
   } catch(e) {}
 }
 
-function testAlarm() {
-  triggerAlarm("&#128276; Тест будильника!", "Если ты слышишь звук и видишь вибрацию — всё работает! &#127881;", "&#128276;");
-}
-
+// ============================================================
 // ИНИЦИАЛИЗАЦИЯ
+// ============================================================
 renderChecklist();
 renderDayTabs();
 renderSchedule();
 renderEveningPack();
 updateRadarAndNotifications();
+updateVacationTimers();
 loadSoundSettings();
-setInterval(updateRadarAndNotifications, 10000); // Проверка каждую секунду для точности
-setInterval(updateRadarAndNotifications, 1000); 
+
+setInterval(updateRadarAndNotifications, 10000);
+setInterval(checkWakeAndPackAlarms, 30000);
+setInterval(updateVacationTimers, 100); // Обновление таймеров каникул каждые 100мс для плавности
 
 setTimeout(() => {
   playBeep(523, 0.08, 0.15);
