@@ -19,10 +19,6 @@
     --purple: #a855f7;
     --danger: #ef4444;
     --pink: #ec4899;
-    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   html { background: var(--bg); min-height: 100%; }
@@ -234,14 +230,6 @@
     overflow: hidden;
     border: 1px solid rgba(255,255,255,0.1);
   }
-  .vacation-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    opacity: 0.15;
-    z-index: 0;
-  }
-  .vacation-card > * { position: relative; z-index: 1; }
   .vacation-card.summer { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%); border-color: rgba(245, 158, 11, 0.4); }
   .vacation-card.friday { background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%); border-color: rgba(168, 85, 247, 0.4); }
   .vacation-card.school { background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%); border-color: rgba(56, 189, 248, 0.4); }
@@ -342,6 +330,58 @@
     color: var(--muted);
     margin-top: 4px;
     text-align: center;
+  }
+
+  /* Стили для домашнего задания */
+  .hw-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .hw-item {
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .hw-item:last-child { margin-bottom: 0; }
+  .hw-subject {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .hw-task {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .hw-date {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .hw-empty {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 20px;
+  }
+  .hw-add-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .hw-add-form input {
+    flex: 1;
+    min-width: 120px;
+  }
+  .hw-add-form .btn {
+    flex-shrink: 0;
   }
 
   @media (max-width: 380px) {
@@ -488,7 +528,7 @@
         <span class="vacation-emoji">&#9728;&#65039;</span>
         <span>До летних каникул</span>
       </div>
-      <div class="vacation-subtitle" id="summerDate">1 июня 2026</div>
+      <div class="vacation-subtitle" id="summerDate">27 мая 2027</div>
       <div class="vacation-timer" id="summerTimer">
         <div class="vacation-unit">
           <div class="vacation-value" id="summerDays">0</div>
@@ -599,6 +639,44 @@
       <div class="vacation-ms">Миллисекунды: <span id="newyearMs">000</span></div>
     </div>
   </div>
+
+  <div id="screen-homework" class="screen">
+    <div class="card">
+      <div class="card-title">
+        <span>&#128218; Домашнее задание</span>
+        <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="toggleHwEdit()">&#9999;&#65039; Ред.</button>
+      </div>
+      <div id="homeworkList"></div>
+      <div id="hwEditForm" style="display:none; margin-top:12px;">
+        <input type="text" id="hwSubject" placeholder="Предмет">
+        <input type="text" id="hwTask" placeholder="Задание">
+        <input type="date" id="hwDate">
+        <button class="btn btn-full" onclick="addHomework()">+ Добавить ДЗ</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#128225; Интеграция с электронным журналом</div>
+      <p style="font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:12px;">
+        К сожалению, электронные журналы (Дневник.ру, СГО, МЭШ) не предоставляют публичный API для сторонних приложений.
+      </p>
+      <p style="font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:12px;">
+        <strong style="color:var(--accent);">Рекомендуемые варианты:</strong>
+      </p>
+      <div style="font-size:12px; color:var(--muted); line-height:1.6;">
+        <div style="margin-bottom:8px;">
+          <strong style="color:var(--text);">1. Ручной ввод</strong> — самый надежный способ. Просто добавляй ДЗ через кнопку выше.
+        </div>
+        <div style="margin-bottom:8px;">
+          <strong style="color:var(--text);">2. Копирование из журнала</strong> — открой электронный журнал, скопируй текст ДЗ и вставь сюда.
+        </div>
+        <div style="margin-bottom:8px;">
+          <strong style="color:var(--text);">3. Фото + OCR</strong> — сделай скриншот журнала, приложение может распознать текст (функция в разработке).
+        </div>
+      </div>
+      <button class="btn btn-purple btn-full" onclick="showHwHelp()" style="margin-top:12px;">&#128218; Как быстро добавлять ДЗ</button>
+    </div>
+  </div>
 </div>
 
 <nav>
@@ -613,6 +691,9 @@
   </button>
   <button class="nav-btn" onclick="switchTab('vacation', this)">
     <span class="nav-icon">&#127881;</span><span>Каникулы</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('homework', this)">
+    <span class="nav-icon">&#128218;</span><span>ДЗ</span>
   </button>
 </nav>
 
@@ -793,9 +874,11 @@ const DEFAULT_TASKS = [
 let schedule = JSON.parse(localStorage.getItem("7v_sched")) || DEFAULT_SCHEDULE;
 let extras = JSON.parse(localStorage.getItem("7v_extras")) || {1:[],2:[],3:[],4:[],5:[],6:[]};
 let tasks = JSON.parse(localStorage.getItem("7v_tasks")) || DEFAULT_TASKS;
+let homework = JSON.parse(localStorage.getItem("7v_homework")) || [];
 let selectedDay = new Date().getDay();
 if (selectedDay === 0) selectedDay = 1;
 let editMode = false;
+let hwEditMode = false;
 let lastNotifiedKey = "";
 
 const todayStr = new Date().toDateString();
@@ -975,53 +1058,51 @@ function getNextFriday() {
 function getNextSchoolVacation() {
   const now = new Date();
   const year = now.getFullYear();
-  const month = now.getMonth();
-  const day = now.getDate();
   
-  // Примерные даты каникул для 7 класса (можно настроить)
+  // Точные даты каникул для 2026-2027 учебного года
   const vacations = [
-    { name: "Осенние каникулы", date: new Date(year, 10, 2) }, // 2 ноября
-    { name: "Зимние каникулы", date: new Date(year, 11, 28) }, // 28 декабря
-    { name: "Весенние каникулы", date: new Date(year + 1, 2, 22) }, // 22 марта
-    { name: "Летние каникулы", date: new Date(year + 1, 4, 31) } // 31 мая
+    { name: "Осенние каникулы", start: new Date(2026, 9, 26), end: new Date(2026, 10, 3) },
+    { name: "Зимние каникулы", start: new Date(2026, 11, 31), end: new Date(2027, 0, 10) },
+    { name: "Весенние каникулы", start: new Date(2027, 2, 27), end: new Date(2027, 3, 4) },
+    { name: "Летние каникулы", start: new Date(2027, 4, 27), end: new Date(2027, 7, 31) }
   ];
   
-  // Если сейчас после 2 ноября, берем следующий год для осенних
-  if (month > 10 || (month === 10 && day >= 2)) {
-    vacations[0].date = new Date(year + 1, 10, 2);
-  }
-  if (month > 11 || (month === 11 && day >= 28)) {
-    vacations[1].date = new Date(year + 1, 11, 28);
-  }
-  if (month > 2 || (month === 2 && day >= 22)) {
-    vacations[2].date = new Date(year + 1, 2, 22);
+  // Ищем ближайшие каникулы
+  for (let v of vacations) {
+    if (now < v.start) return v;
+    if (now >= v.start && now <= v.end) {
+      // Сейчас во время этих каникул, показываем следующие
+      const nextIndex = vacations.indexOf(v) + 1;
+      if (nextIndex < vacations.length) return vacations[nextIndex];
+      return vacations[0]; // Если летние, то следующие осенние
+    }
   }
   
-  for (let v of vacations) {
-    if (v.date > now) return v;
-  }
   return vacations[0];
 }
 
 function updateVacationTimers() {
   const now = new Date();
   
-  // Летние каникулы - 1 июня следующего года (если уже прошло)
-  let summerDate = new Date(now.getFullYear(), 5, 1); // 1 июня
-  if (now > summerDate) summerDate = new Date(now.getFullYear() + 1, 5, 1);
+  // Летние каникулы - 27 мая 2027
+  let summerDate = new Date(2027, 4, 27);
   
-  // Начало учебного года для прогресса - 1 сентября
-  let schoolYearStart = new Date(now.getFullYear(), 8, 1);
-  if (now < schoolYearStart) schoolYearStart = new Date(now.getFullYear() - 1, 8, 1);
+  // Начало учебного года для прогресса - 1 сентября 2026
+  let schoolYearStart = new Date(2026, 8, 1);
   
   updateTimer('summer', summerDate, schoolYearStart, summerDate);
   updateTimer('friday', getNextFriday(), null, null);
   
   const nextVac = getNextSchoolVacation();
-  updateTimer('school', nextVac.date, schoolYearStart, nextVac.date);
+  updateTimer('school', nextVac.start, schoolYearStart, nextVac.start);
+  
+  // Обновляем текст с датой каникул
+  document.getElementById('schoolDate').textContent = nextVac.name + " (" + 
+    nextVac.start.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) + " — " +
+    nextVac.end.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) + ")";
   
   // Новый год
-  let newYearDate = new Date(now.getFullYear() + 1, 0, 1);
+  let newYearDate = new Date(2027, 0, 1);
   updateTimer('newyear', newYearDate, null, null);
 }
 
@@ -1060,6 +1141,83 @@ function updateTimer(id, targetDate, startDate, endDate) {
     if (progressEl) progressEl.style.width = progress.toFixed(1) + '%';
     if (progressTextEl) progressTextEl.textContent = progress.toFixed(1) + '% времени прошло';
   }
+}
+
+// ============================================================
+// ДОМАШНЕЕ ЗАДАНИЕ
+// ============================================================
+function renderHomework() {
+  const list = document.getElementById("homeworkList");
+  list.innerHTML = "";
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const upcomingHw = homework.filter(hw => {
+    const hwDate = new Date(hw.date);
+    return hwDate >= today;
+  }).sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  if (upcomingHw.length === 0) {
+    list.innerHTML = '<div class="hw-empty">&#127881; На ближайшие дни домашнего задания нет!</div>';
+    return;
+  }
+  
+  upcomingHw.forEach(function(hw, idx) {
+    const hwDate = new Date(hw.date);
+    const dateStr = hwDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    const isToday = hwDate.getTime() === today.getTime();
+    
+    const div = document.createElement("div");
+    div.className = "hw-item";
+    div.style.borderLeftColor = isToday ? 'var(--warning)' : 'var(--accent)';
+    div.innerHTML = `
+      <div class="hw-subject">${hw.subject}</div>
+      <div class="hw-task">${hw.task}</div>
+      <div class="hw-date">${isToday ? '&#128293; Сегодня' : dateStr}</div>
+      ${hwEditMode ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px; margin-top:8px;" onclick="removeHomework(${idx})">&#10006; Удалить</button>` : ''}
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleHwEdit() {
+  hwEditMode = !hwEditMode;
+  document.getElementById("hwEditForm").style.display = hwEditMode ? "block" : "none";
+  renderHomework();
+}
+
+function addHomework() {
+  const subject = document.getElementById("hwSubject").value.trim();
+  const task = document.getElementById("hwTask").value.trim();
+  const date = document.getElementById("hwDate").value;
+  
+  if (!subject || !task || !date) {
+    showToast("&#9888;&#65039; Заполни все поля!");
+    return;
+  }
+  
+  homework.push({ subject, task, date });
+  localStorage.setItem("7v_homework", JSON.stringify(homework));
+  
+  document.getElementById("hwSubject").value = "";
+  document.getElementById("hwTask").value = "";
+  document.getElementById("hwDate").value = "";
+  
+  renderHomework();
+  showToast("&#128218; Домашнее задание добавлено!");
+  playBeep(880, 0.1, 0.2);
+}
+
+function removeHomework(idx) {
+  homework.splice(idx, 1);
+  localStorage.setItem("7v_homework", JSON.stringify(homework));
+  renderHomework();
+  showToast("&#10004; Домашнее задание удалено");
+}
+
+function showHwHelp() {
+  showToast("&#128218; Просто добавляй ДЗ вручную через кнопку 'Ред.'!");
 }
 
 // ============================================================
@@ -1138,11 +1296,17 @@ function updateLesson(idx, field, val) {
   schedule[selectedDay][idx][field] = val;
   localStorage.setItem("7v_sched", JSON.stringify(schedule));
 }
-function toggleEditSchedule() { editMode = !editMode; renderSchedule(); }
+
+function toggleEditSchedule() {
+  editMode = !editMode;
+  renderSchedule();
+}
+
 function resetScheduleToDefault() {
   schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
   localStorage.setItem("7v_sched", JSON.stringify(schedule));
-  editMode = false; renderSchedule();
+  editMode = false;
+  renderSchedule();
   showToast("&#9989; Базовое расписание 7В восстановлено!");
 }
 
@@ -1216,6 +1380,8 @@ function switchTab(tab, btn) {
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   playBeep(500, 0.05, 0.15);
+  
+  if (tab === 'homework') renderHomework();
 }
 
 function saveSettings() { showToast("&#9200;&#65039; Время напоминаний сохранено!"); playBeep(660, 0.1, 0.2); }
@@ -1245,19 +1411,14 @@ renderChecklist();
 renderDayTabs();
 renderSchedule();
 renderEveningPack();
+renderHomework();
 updateRadarAndNotifications();
 updateVacationTimers();
 loadSoundSettings();
 
 setInterval(updateRadarAndNotifications, 10000);
 setInterval(checkWakeAndPackAlarms, 30000);
-setInterval(updateVacationTimers, 100); // Обновление таймеров каникул каждые 100мс для плавности
-
-setTimeout(() => {
-  playBeep(523, 0.08, 0.15);
-  setTimeout(() => playBeep(659, 0.08, 0.15), 80);
-  setTimeout(() => playBeep(784, 0.12, 0.2), 160);
-}, 500);
+setInterval(updateVacationTimers, 100);
 </script>
 </body>
 </html>
