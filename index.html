@@ -168,7 +168,6 @@
   .screen { display: none; }
   .screen.active { display: block; }
   
-  /* Toast */
   .toast {
     position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
     background: #1e293b; border: 2px solid var(--accent); color: #fff;
@@ -176,7 +175,6 @@
     font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; width: 92%; max-width: 420px;
   }
   
-  /* Alarm Modal */
   .alarm-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.85);
@@ -208,7 +206,6 @@
   .alarm-buttons { display: flex; gap: 10px; }
   .alarm-buttons .btn { flex: 1; }
   
-  /* Sound toggle */
   .sound-toggle {
     display: flex;
     align-items: center;
@@ -227,7 +224,6 @@
 
 <div id="toast" class="toast"></div>
 
-<!-- Alarm Modal -->
 <div id="alarmOverlay" class="alarm-overlay">
   <div class="alarm-modal">
     <div class="alarm-icon" id="alarmIcon">&#128276;</div>
@@ -317,7 +313,6 @@
         <button class="btn btn-outline" onclick="setTimer(120, '&#129477; Чистка зубов')">&#129477; Зубы (2 мин)</button>
         <button class="btn btn-outline" onclick="setTimer(300, '&#128170; Бодрая зарядка')">&#128170; Зарядка (5 мин)</button>
         <button class="btn btn-outline" onclick="setTimer(1500, '&#128218; Фокус на ДЗ')">&#128218; Уроки (25 мин)</button>
-        <button class="btn btn-outline" onclick="setTimer(600, '&#129300; Перерыв')">&#129300; 10 мин</button>
       </div>
       <div style="display:flex; gap:8px;">
         <button class="btn btn-full" id="timerStartBtn" onclick="toggleTimer()">&#9658;&#65039; Старт</button>
@@ -327,26 +322,19 @@
         <input type="checkbox" id="soundEnabled" checked onchange="saveSoundSetting()">
         <label for="soundEnabled">&#128264; Звук и вибрация включены</label>
       </div>
-      <div class="sound-toggle">
-        <input type="checkbox" id="tickEnabled" onchange="saveSoundSetting()">
-        <label for="tickEnabled">&#128344; Тиканье во время работы</label>
-      </div>
     </div>
 
     <div class="card">
-      <div class="card-title">&#9200;&#65039; Утренний будильник и напоминания</div>
+      <div class="card-title">&#9200;&#65039; Напоминания об уроках</div>
       <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
-        Установи время утреннего подъема и вечернего напоминания собрать рюкзак:
+        App будет напоминать за 7 минут до урока. <br>
+        <strong style="color:var(--warning);">Важно: Держи приложение открытым!</strong>
       </p>
-      <label style="font-size:12px; color:var(--muted);">Подъем утром:</label>
-      <input type="time" id="wakeTime" value="07:00" onchange="saveSettings()">
-      <label style="font-size:12px; color:var(--muted);">Вечерний сбор рюкзака:</label>
-      <input type="time" id="packTime" value="20:00" onchange="saveSettings()">
-      <button class="btn btn-purple btn-full" onclick="testAlarm()">&#128640; Проверить будильник сейчас</button>
-      <div class="sound-toggle" style="margin-top:12px;">
+      <div class="sound-toggle">
         <input type="checkbox" id="notifEnabled" checked onchange="saveSoundSetting()">
-        <label for="notifEnabled">&#128276; Уведомления о уроках включены</label>
+        <label for="notifEnabled">&#128276; Уведомления за 7 минут до урока</label>
       </div>
+      <button class="btn btn-purple btn-full" onclick="testAlarm()" style="margin-top:12px;">&#128640; Проверить будильник сейчас</button>
     </div>
   </div>
 </div>
@@ -365,131 +353,69 @@
 
 <script>
 // ============================================================
-// ЗВУКОВАЯ СИСТЕМА (Web Audio API - работает везде, без файлов)
+// ЗВУКОВАЯ СИСТЕМА
 // ============================================================
 let audioCtx = null;
 let alarmOscillator = null;
-let alarmGain = null;
-let tickInterval = null;
 let isAlarmPlaying = false;
 
 function initAudio() {
   if (!audioCtx) {
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch(e) {
-      console.log('Web Audio API не поддерживается');
-    }
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 }
-
-// Инициализировать аудио при первом касании
 document.addEventListener('touchstart', initAudio, { once: true });
 document.addEventListener('click', initAudio, { once: true });
 
-// Короткий звук "бип"
 function playBeep(freq = 800, duration = 0.15, volume = 0.3) {
   initAudio();
   if (!audioCtx) return;
-  
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  
-  osc.frequency.value = freq;
-  osc.type = 'sine';
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.frequency.value = freq; osc.type = 'sine';
   gain.gain.setValueAtTime(volume, audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-  
-  osc.start(audioCtx.currentTime);
-  osc.stop(audioCtx.currentTime + duration);
+  osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + duration);
 }
 
-// Звук тиканья таймера
-function playTick() {
-  playBeep(1000, 0.05, 0.1);
-}
-
-// ГРОМКИЙ будильник - повторяющиеся сигналы
 function startAlarmSound() {
   initAudio();
   if (!audioCtx || isAlarmPlaying) return;
   isAlarmPlaying = true;
-  
   let beepCount = 0;
-  const maxBeeps = 60; // 30 секунд максимум
-  
   function beep() {
-    if (!isAlarmPlaying || beepCount >= maxBeeps) {
-      stopAlarmSound();
-      return;
-    }
-    
+    if (!isAlarmPlaying || beepCount >= 60) { stopAlarmSound(); return; }
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    // Частота меняется для привлечения внимания
+    osc.connect(gain); gain.connect(audioCtx.destination);
     osc.frequency.value = beepCount % 2 === 0 ? 880 : 1100;
-    osc.type = 'square'; // Более резкий звук
-    
+    osc.type = 'square';
     const now = audioCtx.currentTime;
     gain.gain.setValueAtTime(0.5, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-    
-    osc.start(now);
-    osc.stop(now + 0.3);
-    
+    osc.start(now); osc.stop(now + 0.3);
     beepCount++;
   }
-  
   beep();
-  alarmOscillator = setInterval(beep, 500); // Каждые 500мс
+  alarmOscillator = setInterval(beep, 500);
 }
 
 function stopAlarmSound() {
   isAlarmPlaying = false;
-  if (alarmOscillator) {
-    clearInterval(alarmOscillator);
-    alarmOscillator = null;
-  }
+  if (alarmOscillator) { clearInterval(alarmOscillator); alarmOscillator = null; }
 }
 
-// Вибрация (работает на Android)
 function vibrate(pattern) {
-  if (navigator.vibrate) {
-    navigator.vibrate(pattern);
-  }
+  if (navigator.vibrate) navigator.vibrate(pattern);
 }
 
-// Комбинированное уведомление: звук + вибрация + визуал
 function triggerAlarm(title, message, icon) {
   const soundEnabled = document.getElementById('soundEnabled').checked;
-  
-  // Визуальное уведомление (модальное окно)
   showAlarmModal(title, message, icon);
-  
-  // Звук
-  if (soundEnabled) {
-    startAlarmSound();
-  }
-  
-  // Вибрация (паттерн: вибро-пауза-вибро-пауза...)
+  if (soundEnabled) startAlarmSound();
   vibrate([500, 200, 500, 200, 500, 200, 500]);
-  
-  // Попытка системного уведомления (может не работать в WebView)
-  try {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body: message, vibrate: [500, 200, 500] });
-    }
-  } catch(e) {}
 }
 
 function showAlarmModal(title, message, icon) {
@@ -500,37 +426,32 @@ function showAlarmModal(title, message, icon) {
 }
 
 function stopAlarm() {
-  stopAlarmSound();
-  vibrate(0); // Остановить вибрацию
+  stopAlarmSound(); vibrate(0);
   document.getElementById('alarmOverlay').classList.remove('active');
-  document.getElementById('timerDisplay').classList.remove('alarm');
+  document.getElementById('timerDisplay').classList.remove("alarm");
   showToast('&#10004; Будильник остановлен');
 }
 
 function snoozeAlarm() {
-  stopAlarmSound();
-  vibrate(0);
+  stopAlarmSound(); vibrate(0);
   document.getElementById('alarmOverlay').classList.remove('active');
-  document.getElementById('timerDisplay').classList.remove('alarm');
-  
-  // Добавить 5 минут
-  timerSec += 300;
-  updateTimerUI();
+  document.getElementById('timerDisplay').classList.remove("alarm");
+  timerSec += 300; updateTimerUI();
   showToast('&#9200; Отложено на 5 минут');
 }
 
 // ============================================================
-// РАСПИСАНИЕ И ДАННЫЕ
+// ДАННЫЕ
 // ============================================================
 const BELLS = [
-  { num: 1, start: "08:00", end: "08:40", notifyAt: "07:40" },
-  { num: 2, start: "08:50", end: "09:30", notifyAt: "08:41" },
-  { num: 3, start: "09:40", end: "10:20", notifyAt: "09:31" },
-  { num: 4, start: "10:40", end: "11:20", notifyAt: "10:21" },
-  { num: 5, start: "11:40", end: "12:20", notifyAt: "11:21", canteenBefore: true },
-  { num: 6, start: "12:30", end: "13:10", notifyAt: "12:21" },
-  { num: 7, start: "13:20", end: "14:00", notifyAt: "13:11" },
-  { num: 8, start: "14:10", end: "14:50", notifyAt: "14:01" }
+  { num: 1, start: "08:00", end: "08:40" },
+  { num: 2, start: "08:50", end: "09:30" },
+  { num: 3, start: "09:40", end: "10:20" },
+  { num: 4, start: "10:40", end: "11:20" },
+  { num: 5, start: "11:40", end: "12:20", canteenBefore: true },
+  { num: 6, start: "12:30", end: "13:10" },
+  { num: 7, start: "13:20", end: "14:00" },
+  { num: 8, start: "14:10", end: "14:50" }
 ];
 
 const DEFAULT_SCHEDULE = {
@@ -538,17 +459,17 @@ const DEFAULT_SCHEDULE = {
     { num: 1, name: "Разговоры о важном", teacher: "Щербинин А. С." },
     { num: 2, name: "Русский язык", teacher: "Ефремова Н. В." },
     { num: 3, name: "Физика", teacher: "Щербинин А. С." },
-    { num: 4, name: "Английский язык (1 гр / 2 гр)", teacher: "Башинская А. А. / Кретова В. А." },
+    { num: 4, name: "Английский язык", teacher: "Башинская А. А." },
     { num: 5, name: "Алгебра", teacher: "Мартьянова Н. А." },
     { num: 6, name: "Литература", teacher: "Ефремова Н. В." }
   ],
   2: [
-    { num: 1, name: "Труд (технология)", teacher: "Мухин М. В. / Матюгина Л. А." },
-    { num: 2, name: "Труд (технология)", teacher: "Мухин М. В. / Матюгина Л. А." },
+    { num: 1, name: "Труд (технология)", teacher: "Мухин М. В." },
+    { num: 2, name: "Труд (технология)", teacher: "Мухин М. В." },
     { num: 3, name: "Геометрия", teacher: "Мартьянова Н. А." },
     { num: 4, name: "Русский язык", teacher: "Ефремова Н. В." },
     { num: 5, name: "История", teacher: "Маркеева Т. И." },
-    { num: 6, name: "Английский язык (1 гр / 2 гр)", teacher: "Башинская А. А. / Кретова В. А." },
+    { num: 6, name: "Английский язык", teacher: "Башинская А. А." },
     { num: 7, name: "Музыка", teacher: "Щербинин А. С." }
   ],
   3: [
@@ -566,7 +487,7 @@ const DEFAULT_SCHEDULE = {
     { num: 3, name: "Алгебра", teacher: "Мартьянова Н. А." },
     { num: 4, name: "История", teacher: "Маркеева Т. И." },
     { num: 5, name: "Биология", teacher: "Макарова П. А." },
-    { num: 6, name: "Английский (1 гр) / Информатика (2 гр)", teacher: "Башинская А. А. / Мамонтов А. А." },
+    { num: 6, name: "Английский / Информатика", teacher: "Башинская / Мамонтов" },
     { num: 7, name: "Россия — мои горизонты", teacher: "Щербинин А. С." }
   ],
   5: [
@@ -574,7 +495,7 @@ const DEFAULT_SCHEDULE = {
     { num: 2, name: "Русский язык", teacher: "Ефремова Н. В." },
     { num: 3, name: "География", teacher: "Скачкова Н. П." },
     { num: 4, name: "Алгебра", teacher: "Мартьянова Н. А." },
-    { num: 5, name: "Информатика (1 гр) / Английский (2 гр)", teacher: "Мамонтов А. А. / Кретова В. А." },
+    { num: 5, name: "Информатика / Английский", teacher: "Мамонтов / Кретова" },
     { num: 6, name: "Физическая культура", teacher: "Кудашкин А. С." },
     { num: 7, name: "Литература", teacher: "Ефремова Н. В." }
   ],
@@ -583,21 +504,21 @@ const DEFAULT_SCHEDULE = {
 
 const CHEERS = [
   "&#128293; Ты клёвый! Сегодня всё обязательно получится!",
-  "&#128526; Улыбнись соседу по парте — сделай этот день чуточку лучше!",
-  "&#128170; Даже если тема сложная, ты справишься. Шаг за шагом!",
+  "&#128526; Улыбнись соседу по парте!",
+  "&#128170; Даже если тема сложная, ты справишься!",
   "&#9889; Перемена — повод размять плечи и выпить воды!",
-  "&#128640; 7В — сила! Отличного тебе настроения сегодня!",
-  "&#127775; Не бойся ошибаться, бойся не пробовать. Ты молодец!"
+  "&#128640; 7В — сила! Отличного тебе настроения!",
+  "&#127775; Не бойся ошибаться, бойся не пробовать!"
 ];
 
 const DEFAULT_TASKS = [
-  { id: "wake", name: "&#127749; Проснуться вовремя и заправить кровать", xp: 10, done: false },
-  { id: "teeth_m", name: "&#129477; Почистить зубы утром (2 мин)", xp: 10, done: false },
-  { id: "gym", name: "&#128170; Сделать утреннюю зарядку (5 мин)", xp: 15, done: false },
+  { id: "wake", name: "&#127749; Проснуться и заправить кровать", xp: 10, done: false },
+  { id: "teeth_m", name: "&#129477; Почистить зубы утром", xp: 10, done: false },
+  { id: "gym", name: "&#128170; Сделать зарядку (5 мин)", xp: 15, done: false },
   { id: "school", name: "&#127979; Отработать уроки в школе", xp: 15, done: false },
   { id: "hw", name: "&#128218; Сделать домашнее задание", xp: 20, done: false },
-  { id: "parents_check", name: "&#11088; Выполнить проверку уроков у родителей", xp: 40, done: false },
-  { id: "pack", name: "&#127898; Собрать портфель и одежду на завтра", xp: 15, done: false },
+  { id: "parents_check", name: "&#11088; Показать уроки родителям", xp: 40, done: false },
+  { id: "pack", name: "&#127898; Собрать портфель на завтра", xp: 15, done: false },
   { id: "teeth_e", name: "&#127769; Почистить зубы перед сном", xp: 15, done: false }
 ];
 
@@ -608,10 +529,10 @@ let selectedDay = new Date().getDay();
 if (selectedDay === 0) selectedDay = 1;
 let editMode = false;
 let lastNotifiedKey = "";
-
 const todayStr = new Date().toDateString();
+
 if (localStorage.getItem("7v_last_date") !== todayStr) {
-  tasks = DEFAULT_TASKS.map(function(t) { return Object.assign({}, t, {done: false}); });
+  tasks = DEFAULT_TASKS.map(t => ({...t, done: false}));
   localStorage.setItem("7v_tasks", JSON.stringify(tasks));
   localStorage.setItem("7v_last_date", todayStr);
 }
@@ -625,93 +546,47 @@ let timerLabel = '';
 let toastTimer = null;
 
 function setTimer(sec, label) {
-  resetTimer();
-  timerSec = sec;
-  timerLabel = label;
-  updateTimerUI();
-  showToast("Выбран режим: " + label);
-  playBeep(600, 0.1, 0.2); // Короткий звук подтверждения
+  resetTimer(); timerSec = sec; timerLabel = label;
+  updateTimerUI(); showToast("Выбран режим: " + label);
+  playBeep(600, 0.1, 0.2);
 }
-
 function updateTimerUI() {
   const m = String(Math.floor(timerSec / 60)).padStart(2, "0");
   const s = String(timerSec % 60).padStart(2, "0");
   document.getElementById("timerDisplay").innerHTML = m + ":" + s;
 }
-
 function toggleTimer() {
   const btn = document.getElementById("timerStartBtn");
-  const tickEnabled = document.getElementById("tickEnabled").checked;
-  
   if (timerInterval) {
-    // Пауза
-    clearInterval(timerInterval);
-    timerInterval = null;
-    if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+    clearInterval(timerInterval); timerInterval = null;
     btn.innerHTML = "&#9658;&#65039; Старт";
     document.getElementById("timerDisplay").classList.remove("alarm");
     playBeep(400, 0.1, 0.2);
   } else {
-    // Старт
     btn.innerHTML = "&#9208;&#65039; Пауза";
     document.getElementById("timerDisplay").classList.remove("alarm");
     playBeep(800, 0.15, 0.3);
-    
-    // Тиканье
-    if (tickEnabled) {
-      tickInterval = setInterval(function() {
-        if (timerSec > 0 && timerSec % 60 === 0) {
-          playTick();
-        }
-      }, 1000);
-    }
-    
     timerInterval = setInterval(function() {
-      if (timerSec > 0) {
-        timerSec--;
-        updateTimerUI();
-      } else {
-        // ТАЙМЕР ЗАВЕРШЁН!
-        clearInterval(timerInterval);
-        timerInterval = null;
-        if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+      if (timerSec > 0) { timerSec--; updateTimerUI(); } 
+      else {
+        clearInterval(timerInterval); timerInterval = null;
         btn.innerHTML = "&#9658;&#65039; Старт";
         document.getElementById("timerDisplay").classList.add("alarm");
-        
-        // ЗАПУСТИТЬ БУДИЛЬНИК
-        const soundEnabled = document.getElementById('soundEnabled').checked;
-        if (soundEnabled) {
-          triggerAlarm(
-            "&#127881; Таймер завершён!",
-            timerLabel ? "Время: " + timerLabel + "<br>Отличная работа! Не забудь отметить галочку в чек-листе." : "Отличная работа! Не забудь отметить галочку в чек-листе.",
-            "&#127881;"
-          );
-        } else {
-          showAlarmModal(
-            "&#127881; Таймер завершён!",
-            timerLabel ? "Время: " + timerLabel : "Отличная работа!",
-            "&#127881;"
-          );
-        }
+        triggerAlarm("&#127881; Таймер завершён!", timerLabel || "Отличная работа!", "&#127881;");
       }
     }, 1000);
   }
 }
-
 function resetTimer() {
-  clearInterval(timerInterval);
-  timerInterval = null;
-  if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+  clearInterval(timerInterval); timerInterval = null;
   stopAlarmSound();
   document.getElementById("timerStartBtn").innerHTML = "&#9658;&#65039; Старт";
   document.getElementById("timerDisplay").classList.remove("alarm");
-  timerSec = 120;
-  timerLabel = '';
-  updateTimerUI();
+  timerSec = 120; timerLabel = ''; updateTimerUI();
 }
 
 // ============================================================
-// УВЕДОМЛЕНИЯ О УРОКАХ
+// УВЕДОМЛЕНИЯ (ДИНАМИЧЕСКИЕ 7 МИНУТ)
 // ============================================================
 function updateRadarAndNotifications() {
   const now = new Date();
@@ -732,38 +607,34 @@ function updateRadarAndNotifications() {
     return;
   }
 
-  // Проверка времени уведомления об уроке
+  // ДИНАМИЧЕСКОЕ УВЕДОМЛЕНИЕ ЗА 7 МИНУТ
   if (notifEnabled) {
+    const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
     BELLS.forEach(function(b) {
-      const les = todayLessons.find(function(l) { return l.num === b.num; });
-      if (les && curTime === b.notifyAt && lastNotifiedKey !== todayStr + "_" + curTime) {
-        lastNotifiedKey = todayStr + "_" + curTime;
-        
-        let title, message;
-        if (b.num === 1) {
-          title = "&#128276; Первый урок в 08:00!";
-          message = les.name + "<br>Учитель: " + les.teacher;
-        } else if (b.canteenBefore) {
-          title = "&#127869;&#65039; Столовая 7В (11:20–11:40)!";
-          message = "А в 11:40 — 5 урок: " + les.name;
-        } else {
-          title = "&#128276; Следующий (" + b.num + "-й) урок в " + b.start;
-          message = les.name + "<br>Учитель: " + les.teacher;
+      const les = todayLessons.find(l => l.num === b.num);
+      if (!les) return;
+      const [h, m] = b.start.split(':').map(Number);
+      const lessonTotalMinutes = h * 60 + m;
+      const diff = lessonTotalMinutes - currentTotalMinutes;
+
+      if (diff === 7) {
+        const notifyKey = todayStr + "_bell_" + b.num;
+        if (lastNotifiedKey !== notifyKey) {
+          lastNotifiedKey = notifyKey;
+          triggerAlarm(
+            "&#128276; 7 минут до урока!",
+            "Урок " + b.num + ": " + les.name + "<br>" + les.teacher,
+            "&#128218;"
+          );
         }
-        
-        // Уведомление об уроке - звук + вибрация + модалка
-        playBeep(660, 0.2, 0.3);
-        setTimeout(function() { playBeep(880, 0.2, 0.3); }, 250);
-        vibrate([200, 100, 200]);
-        showToast(title + " — " + message.replace(/<br>/g, ' '));
       }
     });
   }
 
-  // Радар текущего урока
+  // РАДАР
   for (let i = 0; i < BELLS.length; i++) {
     const b = BELLS[i];
-    const les = todayLessons.find(function(l) { return l.num === b.num; });
+    const les = todayLessons.find(l => l.num === b.num);
     if (!les) continue;
     if (curTime < b.start) {
       if (b.canteenBefore && curTime >= "11:20" && curTime < "11:40") {
@@ -785,54 +656,13 @@ function updateRadarAndNotifications() {
   subEl.innerHTML = "Самое время пообедать, отдохнуть и сделать ДЗ.";
 }
 
-// Проверка будильника (утро/вечер)
-function checkWakeAndPackAlarms() {
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2, "0");
-  const mm = String(now.getMinutes()).padStart(2, "0");
-  const curTime = hh + ":" + mm;
-  
-  const wakeTime = document.getElementById("wakeTime").value;
-  const packTime = document.getElementById("packTime").value;
-  const alarmKey = todayStr + "_alarms";
-  const lastAlarms = localStorage.getItem(alarmKey) || "";
-  
-  if (curTime === wakeTime && lastAlarms.indexOf("wake_" + todayStr) === -1) {
-    localStorage.setItem(alarmKey, lastAlarms + "wake_" + todayStr + ",");
-    triggerAlarm(
-      "&#127749; Доброе утро!",
-      "Время просыпаться! Не забудь заправить кровать и почистить зубы.",
-      "&#127749;"
-    );
-  }
-  
-  if (curTime === packTime && lastAlarms.indexOf("pack_" + todayStr) === -1) {
-    localStorage.setItem(alarmKey, lastAlarms + "pack_" + todayStr + ",");
-    triggerAlarm(
-      "&#127898; Собрать рюкзак!",
-      "Время собрать портфель и одежду на завтра. Посмотри расписание!",
-      "&#127898;"
-    );
-  }
-}
-
-// Тест будильника
-function testAlarm() {
-  triggerAlarm(
-    "&#128276; Тест будильника!",
-    "Если ты слышишь звук и видишь вибрацию — всё работает! &#127881;",
-    "&#128276;"
-  );
-}
-
 // ============================================================
 // ОСТАЛЬНЫЕ ФУНКЦИИ
 // ============================================================
 function renderChecklist() {
   const box = document.getElementById("checklistContainer");
   box.innerHTML = "";
-  let doneScore = 0;
-  let totalScore = 0;
+  let doneScore = 0, totalScore = 0;
   tasks.forEach(function(t, idx) {
     totalScore += t.xp;
     if (t.done) doneScore += t.xp;
@@ -850,8 +680,7 @@ function renderChecklist() {
   const pct = Math.round((doneScore / totalScore) * 100);
   document.getElementById("xpFill").style.width = pct + "%";
   document.getElementById("xpText").innerHTML = "Опыт дня: " + pct + "% (" + doneScore + " / " + totalScore + " XP)";
-  const doneCount = tasks.filter(function(t){ return t.done; }).length;
-  document.getElementById("tasksCount").innerHTML = doneCount + "/" + tasks.length;
+  document.getElementById("tasksCount").innerHTML = tasks.filter(t => t.done).length + "/" + tasks.length;
 }
 
 function renderDayTabs() {
@@ -879,7 +708,7 @@ function renderSchedule() {
   }
 
   dayLessons.forEach(function(les, i) {
-    const bell = BELLS.find(function(b) { return b.num === les.num; }) || {start:"--:--", end:"--:--"};
+    const bell = BELLS.find(b => b.num === les.num) || {start:"--:--", end:"--:--"};
     if (les.num === 5) {
       const cant = document.createElement("div");
       cant.className = "canteen-banner";
@@ -891,11 +720,10 @@ function renderSchedule() {
     if (!editMode) {
       row.innerHTML = '<div class="lesson-num">' + les.num + '</div><div class="lesson-info"><div class="lesson-name">' + les.name + '</div><div class="lesson-meta">&#128339; ' + bell.start + '–' + bell.end + ' • &#128104;&#8205;&#127891; ' + (les.teacher || "") + '</div></div>';
     } else {
-      row.innerHTML = '<div style="width:100%"><div style="font-size:12px; color:var(--accent); margin-bottom:4px;">Урок №' + les.num + ' (' + bell.start + '–' + bell.end + ')</div><input value="' + les.name + '" onchange="updateLesson(' + i + ', \'name\', this.value)" placeholder="Предмет"><input value="' + (les.teacher || '') + '" onchange="updateLesson(' + i + ', \'teacher\', this.value)" placeholder="Учитель / Кабинет"></div>';
+      row.innerHTML = '<div style="width:100%"><div style="font-size:12px; color:var(--accent); margin-bottom:4px;">Урок №' + les.num + ' (' + bell.start + '–' + bell.end + ')</div><input value="' + les.name + '" onchange="updateLesson(' + i + ', \'name\', this.value)" placeholder="Предмет"><input value="' + (les.teacher || '') + '" onchange="updateLesson(' + i + ', \'teacher\', this.value)" placeholder="Учитель"></div>';
     }
     list.appendChild(row);
   });
-
   document.getElementById("editHint").style.display = editMode ? "block" : "none";
   renderExtras();
 }
@@ -904,17 +732,11 @@ function updateLesson(idx, field, val) {
   schedule[selectedDay][idx][field] = val;
   localStorage.setItem("7v_sched", JSON.stringify(schedule));
 }
-
-function toggleEditSchedule() {
-  editMode = !editMode;
-  renderSchedule();
-}
-
+function toggleEditSchedule() { editMode = !editMode; renderSchedule(); }
 function resetScheduleToDefault() {
   schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
   localStorage.setItem("7v_sched", JSON.stringify(schedule));
-  editMode = false;
-  renderSchedule();
+  editMode = false; renderSchedule();
   showToast("&#9989; Базовое расписание 7В восстановлено!");
 }
 
@@ -929,7 +751,6 @@ function renderExtras() {
     return '<div class="lesson-row"><div class="lesson-info"><div class="lesson-name">&#127945; ' + ex.name + '</div><div class="lesson-meta">&#128339; Начало в ' + ex.time + '</div></div><button class="btn btn-outline" style="padding:4px 8px;" onclick="removeExtra(' + i + ')">&#10006;</button></div>';
   }).join("");
 }
-
 function addExtra() {
   const name = document.getElementById("extraName").value.trim();
   const time = document.getElementById("extraTime").value;
@@ -938,11 +759,8 @@ function addExtra() {
   extras[selectedDay].push({name: name, time: time});
   localStorage.setItem("7v_extras", JSON.stringify(extras));
   document.getElementById("extraName").value = "";
-  renderExtras();
-  showToast("&#127945; Доп. занятие добавлено!");
-  playBeep(880, 0.1, 0.2);
+  renderExtras(); showToast("&#127945; Доп. занятие добавлено!"); playBeep(880, 0.1, 0.2);
 }
-
 function removeExtra(idx) {
   extras[selectedDay].splice(idx, 1);
   localStorage.setItem("7v_extras", JSON.stringify(extras));
@@ -958,7 +776,7 @@ function renderEveningPack() {
   if (list.length === 0) {
     box.innerHTML = "На завтра (" + names[tomorrow] + ") уроков нет! Отдыхай &#128526;";
   } else {
-    const subj = list.map(function(l) { return l.num + ". " + l.name; }).join("<br>");
+    const subj = list.map(l => l.num + ". " + l.name).join("<br>");
     box.innerHTML = '<strong style="color:#fff;">Уроки на завтра (' + names[tomorrow] + '):</strong><br>' + subj;
   }
 }
@@ -967,95 +785,68 @@ function nextCheer() {
   const idx = Math.floor(Math.random() * CHEERS.length);
   const msg = CHEERS[idx];
   document.getElementById("cheerText").innerHTML = msg;
-  showToast(msg);
-  playBeep(523, 0.1, 0.2);
-  setTimeout(function() { playBeep(659, 0.1, 0.2); }, 100);
+  showToast(msg); playBeep(523, 0.1, 0.2); setTimeout(() => playBeep(659, 0.1, 0.2), 100);
 }
 
 function shareProgress() {
-  let doneScore = 0;
-  let totalScore = 0;
-  tasks.forEach(function(t) {
-    totalScore += t.xp;
-    if (t.done) doneScore += t.xp;
-  });
+  let doneScore = 0, totalScore = 0;
+  tasks.forEach(t => { totalScore += t.xp; if (t.done) doneScore += t.xp; });
   const pct = Math.round((doneScore / totalScore) * 100);
-  const text = "⚡ Мой статус дня (7В Навигатор):\n🔋 Прогресс XP: " + pct + "% (" + doneScore + "/" + totalScore + " XP)\n🎒 К завтрашнему дню готов!";
-  if (navigator.share) {
-    navigator.share({ title: "Мой прогресс 7В", text: text });
-  } else {
-    navigator.clipboard.writeText(text);
-    showToast("&#128203; Отчёт скопирован! Вставь его в чат класса или родителям.");
-  }
+  const text = "⚡ Мой статус дня (7В Навигатор):\n🔋 Прогресс XP: " + pct + "%\n🎒 К завтрашнему дню готов!";
+  if (navigator.share) navigator.share({ title: "Мой прогресс 7В", text: text }); 
+  else { navigator.clipboard.writeText(text); showToast("&#128203; Отчёт скопирован!"); }
 }
 
 function showToast(msg) {
   const t = document.getElementById("toast");
-  t.innerHTML = msg;
-  t.style.display = "block";
+  t.innerHTML = msg; t.style.display = "block";
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(function() { t.style.display = "none"; }, 3000);
+  toastTimer = setTimeout(() => { t.style.display = "none"; }, 3000);
 }
 
 function switchTab(tab, btn) {
-  const screens = document.querySelectorAll(".screen");
-  for (let i = 0; i < screens.length; i++) {
-    screens[i].classList.remove("active");
-  }
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById("screen-" + tab).classList.add("active");
-  
-  const navBtns = document.querySelectorAll(".nav-btn");
-  for (let j = 0; j < navBtns.length; j++) {
-    navBtns[j].classList.remove("active");
-  }
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   playBeep(500, 0.05, 0.15);
-}
-
-function saveSettings() {
-  showToast("&#9200;&#65039; Время напоминаний сохранено!");
-  playBeep(660, 0.1, 0.2);
 }
 
 function saveSoundSetting() {
   const settings = {
     sound: document.getElementById('soundEnabled').checked,
-    tick: document.getElementById('tickEnabled').checked,
     notif: document.getElementById('notifEnabled').checked
   };
   localStorage.setItem("7v_sound_settings", JSON.stringify(settings));
 }
-
 function loadSoundSettings() {
   try {
     const settings = JSON.parse(localStorage.getItem("7v_sound_settings"));
     if (settings) {
       document.getElementById('soundEnabled').checked = settings.sound !== false;
-      document.getElementById('tickEnabled').checked = settings.tick || false;
       document.getElementById('notifEnabled').checked = settings.notif !== false;
     }
   } catch(e) {}
 }
 
-// ============================================================
+function testAlarm() {
+  triggerAlarm("&#128276; Тест будильника!", "Если ты слышишь звук и видишь вибрацию — всё работает! &#127881;", "&#128276;");
+}
+
 // ИНИЦИАЛИЗАЦИЯ
-// ============================================================
 renderChecklist();
 renderDayTabs();
 renderSchedule();
 renderEveningPack();
 updateRadarAndNotifications();
 loadSoundSettings();
+setInterval(updateRadarAndNotifications, 10000); // Проверка каждую секунду для точности
+setInterval(updateRadarAndNotifications, 1000); 
 
-// Обновление каждую секунду
-setInterval(updateRadarAndNotifications, 10000);
-setInterval(checkWakeAndPackAlarms, 30000); // Проверка будильников каждые 30 сек
-
-// Приветственный звук
-setTimeout(function() {
+setTimeout(() => {
   playBeep(523, 0.08, 0.15);
-  setTimeout(function() { playBeep(659, 0.08, 0.15); }, 80);
-  setTimeout(function() { playBeep(784, 0.12, 0.2); }, 160);
+  setTimeout(() => playBeep(659, 0.08, 0.15), 80);
+  setTimeout(() => playBeep(784, 0.12, 0.2), 160);
 }, 500);
 </script>
 </body>
